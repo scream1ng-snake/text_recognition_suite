@@ -4,7 +4,7 @@
   "private": true,
   "electron": "electron .",
   "main": "electron/main.js",
-  "productName": "Пилотный пробник Scanner",
+  "productName": "Handwritten Text Recognition",
   "homepage": "./",
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
