@@ -13,8 +13,13 @@ export function isRehandResult(result: UploadFile<any>) {
   return result?.xhr?.responseURL === apiList[1].URL
 }
 
+type renderOptions = {
+  showBlocks: boolean;
+  showStrings: boolean;
+  showWords: boolean;
+}
 export const render = {
-  fromYandex(result: YandexResult, context: canvasContext) {
+  fromYandex(result: YandexResult, context: canvasContext, options: renderOptions) {
     const blocks = result.result.textAnnotation.blocks;
 
     
@@ -27,11 +32,13 @@ export const render = {
     function renderBlocks(blocks: YandexBlock[]) {
       for (const block of blocks) {
         if (context.current) {
-          const { x, y, w, h } = getCordinates(block.boundingBox)
-          context.current.lineWidth = 4;
-          context.current.strokeStyle = 'blue';
-          context.current.fillStyle = 'rgba(0,0,0,0.5)';
-          context.current.strokeRect(x, y, w, h)
+          if(options.showBlocks) {
+            const { x, y, w, h } = getCordinates(block.boundingBox)
+            context.current.lineWidth = 4;
+            context.current.strokeStyle = 'blue';
+            context.current.fillStyle = 'rgba(0,0,0,0.5)';
+            context.current.strokeRect(x, y, w, h)
+          }
         }
         renderStrings(block.lines)
       }
@@ -39,11 +46,13 @@ export const render = {
     function renderStrings(lines: YandexString[]) {
       for (const line of lines) {
         if (context.current) {
-          const { x, y, w, h } = getCordinates(line.boundingBox)
-          context.current.lineWidth = 4;
-          context.current.strokeStyle = 'yellow';
-          context.current.fillStyle = 'rgba(0,0,0,0.5)';
-          context.current.strokeRect(x, y, w, h)
+          if(options.showStrings) {
+            const { x, y, w, h } = getCordinates(line.boundingBox)
+            context.current.lineWidth = 4;
+            context.current.strokeStyle = 'yellow';
+            context.current.fillStyle = 'rgba(0,0,0,0.5)';
+            context.current.strokeRect(x, y, w, h)
+          }
         }
         renderWords(line.words)
       }
@@ -51,24 +60,28 @@ export const render = {
     function renderWords(words: YandexWord[]) {
       if(context.current) {
         for (const word of words) {
-          const { x, y, w, h } = getCordinates(word.boundingBox)
-          context.current.lineWidth = 4;
-          context.current.strokeStyle = 'red';
-          context.current.fillStyle = 'rgba(0,0,0,0.5)';
-          context.current.strokeRect(x, y, w, h)
+          if(options.showWords) {
+            const { x, y, w, h } = getCordinates(word.boundingBox)
+            context.current.lineWidth = 4;
+            context.current.strokeStyle = 'red';
+            context.current.fillStyle = 'rgba(0,0,0,0.5)';
+            context.current.strokeRect(x, y, w, h)
+          }
         }
       }
     }
     
     renderBlocks(blocks);
   },
-  fromRehand(result: RehandResult, context: canvasContext) {
+  fromRehand(result: RehandResult, context: canvasContext, options: renderOptions) {
     for (const { x, y, w, h } of result.boxes) {
       if (context.current) {
-        context.current.lineWidth = 4
-        context.current.strokeStyle = 'red'
-        context.current.fillStyle = 'rgba(0,0,0,0.5)'
-        context.current.strokeRect(x, y, w, h)
+        if(options.showWords) {
+          context.current.lineWidth = 4
+          context.current.strokeStyle = 'red'
+          context.current.fillStyle = 'rgba(0,0,0,0.5)'
+          context.current.strokeRect(x, y, w, h)
+        }
       }
     }
   },

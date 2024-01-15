@@ -1,4 +1,4 @@
-import { Button, Dropdown, message, Row, Space } from 'antd';
+import { Button, Checkbox, Dropdown, message, Row, Space } from 'antd';
 import React, { useState } from 'react';
 import { CopyOutlined, DownloadOutlined, DownOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
 import { Modal, Upload, Col, Card, Skeleton } from 'antd';
@@ -109,7 +109,11 @@ const appComponents = {
   },
   Modals: {
     ImagePreview({ result, resultTitle, showImageText, setShowImageText }: ImageTextModalProps) {
-      const origObj = URL.createObjectURL(result.originFileObj)
+      const origObj = URL.createObjectURL(result.originFileObj);
+      const isYandexApi = !isRehandResult(result);
+      const [showBlocks, setShowBlocks] = React.useState(isYandexApi);
+      const [showStrings, setShowStrings] = React.useState(isYandexApi);
+      const [showWords, setShowWords] = React.useState(true);
       return(
         <Modal
           title={resultTitle} 
@@ -120,9 +124,32 @@ const appComponents = {
           onCancel={() => setShowImageText(false)}
           width={1080}
         >
+          <Checkbox 
+            disabled={!isYandexApi}
+            checked={showBlocks} 
+            onChange={e => setShowBlocks(e.target.checked)}
+          >
+            Показать блоки
+          </Checkbox>
+          <Checkbox 
+            disabled={!isYandexApi}
+            checked={showStrings} 
+            onChange={e => setShowStrings(e.target.checked)}
+          >
+            Показать строки
+            </Checkbox>
+          <Checkbox 
+            checked={showWords} 
+            onChange={e => setShowWords(e.target.checked)}
+          >
+            Показать слова
+            </Checkbox>
           <ScannedPreview 
             file={origObj}
             result={result.response}
+            showBlocks={showBlocks}
+            showStrings={showStrings}
+            showWords={showWords}
           />
         </Modal>
       )
@@ -254,8 +281,8 @@ const FileUploader: React.FC<fileProps> = ({ fileList, setFileList, currentApi }
   );
 };
 
-const ScannedPreview: React.FC<PreviewProps> = ({ file, result }) => {
-  const [width, setWidth] = React.useState<Optional<number>>(null);
+const ScannedPreview: React.FC<PreviewProps> = ({ file, result, ...options }) => {
+  const [width, setWidth] = React.useState<Optional<number>>(null); 
   const [height, setHeight] = React.useState<Optional<number>>(null);
 
   const canvasRef = React.useRef<Optional<HTMLCanvasElement>>(null);
@@ -277,16 +304,16 @@ const ScannedPreview: React.FC<PreviewProps> = ({ file, result }) => {
           setWidth(background.width);
           setHeight(background.height);
           if ('result' in result) {
-            render.fromYandex(result, canvasCtxRef)
+            render.fromYandex(result, canvasCtxRef, options)
           } else if ('boxes' in result) {
-            render.fromRehand(result, canvasCtxRef)
+            render.fromRehand(result, canvasCtxRef, options)
           }
         }
       }
 
 
     }
-  }, [width, height, file])
+  }, [width, height, file, options.showBlocks, options.showStrings, options.showWords])
 
   return (
     <canvas ref={canvasRef} style={{ width: '1000px', height: 'auto' }}></canvas>

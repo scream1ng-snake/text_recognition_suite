@@ -31,7 +31,10 @@ type fileProps = {
 
 type PreviewProps = {
   file: string,
-  result: Result
+  result: Result, 
+  showBlocks: boolean,
+  showStrings: boolean,
+  showWords: boolean,
 }
 type Optional<T> = T | null
 type changeEvent = React.ChangeEvent<HTMLInputElement>
